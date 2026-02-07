@@ -1,64 +1,107 @@
-import { useState, useEffect } from 'react'
+import { useState } from "react";
 
-import './App.css'
+export default function App() {
+  const [pos, setPos] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-function App() {
-  const [ipAddress, setIpAddress] = useState('');
-  const [geoInfo, setGeoInfo] = useState({});
+  const submitReport = async ({ ipAddress, geoInfo }) => {
+    const payload = {
+      ipAddress,
+      source: "gps",
+      location: {
+        latitude: geoInfo.latitude,
+        longitude: geoInfo.longitude,
+        accuracy: geoInfo.accuracy,
+        city: geoInfo.city,
+        region: geoInfo.region,
+        country: geoInfo.country_name,
+        timezone: geoInfo.timezone,
+        isp: geoInfo.org,
+        timestamp: geoInfo.timestamp,
+      },
+    };
 
-  useEffect(() => {
-    getVisitorIP();
-  }, []);
+    const res = await fetch("http://localhost:5000/api/reports", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-  const getVisitorIP = async () => {
-    try {
-      const response = await fetch('https://api.ipify.org')
-      const data = await response.text();
-      setIpAddress(data);
-    
-    } catch (error) {
-      console.error('Error fetching IP address:', error);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Failed to submit report");
     }
+
+    return res.json();
   };
-const handleInputChange = (e) => {
-  setIpAddress(e.target.value);
-};
 
-const fetchIPInfo = async () => {
- try {
-    const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
-    const data = await response.json();
-    setGeoInfo(data);
-  } catch (error) { 
-    console.error('Error fetching IP information:', error);
-  }
- } 
+  const getGpsLocation = () => {
+    setError("");
+    setLoading(true);
 
+    if (!("geolocation" in navigator)) {
+      setLoading(false);
+      setError("Geolocation is not supported on this device/browser.");
+      return;
+    }
 
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude, accuracy } = position.coords;
+
+          const geoData = {
+            latitude,
+            longitude,
+            accuracy,
+            timestamp: new Date(position.timestamp).toISOString(),
+          };
+
+          setPos(geoData);
+
+          // 🔥 SEND TO MONGODB
+          await submitReport({
+            ipAddress: "auto", // later: derive on server using req.ip
+            geoInfo: geoData,
+          });
+        } catch (err) {
+          console.error(err);
+          setError("Failed to submit report.");
+        } finally {
+          setLoading(false);
+        }
+      },
+      (err) => {
+        setLoading(false);
+        if (err.code === err.PERMISSION_DENIED) setError("Location permission denied.");
+        else if (err.code === err.POSITION_UNAVAILABLE) setError("Location unavailable.");
+        else if (err.code === err.TIMEOUT) setError("Location request timed out.");
+        else setError("Could not get location.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  };
   return (
-    <>
-    <div className='App'>
-      <p>IP to Location: {ipAddress}</p>
-      <div className="form-area">
-        
-        <button onClick={fetchIPInfo}>Get Info</button>
-      </div>
+    <div className="App">
+      <button onClick={getGpsLocation} disabled={loading}>
+        {loading ? "Getting GPS..." : "Report pothole (1 tap)"}
+      </button>
 
-      {geoInfo.country_name && (
-        <div className="geo-info">
-          <p>Country: {geoInfo.country_name}</p>
-          <p>Region: {geoInfo.region}</p>
-          <p>City: {geoInfo.city}</p>
-          <p>Postal Code: {geoInfo.postal}</p>
-          <p>Latitude: {geoInfo.latitude}</p>
-          <p>Longitude: {geoInfo.longitude}</p>
-          <p>Timezone: {geoInfo.timezone}</p>
-          <p>ISP: {geoInfo.org}</p>
+      {error && <p>{error}</p>}
+
+      {pos && (
+        <div>
+          <p>Lat: {pos.latitude}</p>
+          <p>Lng: {pos.longitude}</p>
+          <p>Accuracy: {Math.round(pos.accuracy)} m</p>
+          <p>Time: {pos.timestamp}</p>
         </div>
       )}
-      </div>  
-    </>
-  )
+    </div>
+  );
 }
-
-export default App

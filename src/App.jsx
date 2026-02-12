@@ -1,40 +1,44 @@
 import { useState } from "react";
-
+import TrafficCone from "./assets/TrafficCone";
 export default function App() {
   const [pos, setPos] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const submitReport = async ({ ipAddress, geoInfo }) => {
-    const payload = {
-      ipAddress,
-      source: "gps",
-      location: {
-        latitude: geoInfo.latitude,
-        longitude: geoInfo.longitude,
-        accuracy: geoInfo.accuracy,
-        city: geoInfo.city,
-        region: geoInfo.region,
-        country: geoInfo.country_name,
-        timezone: geoInfo.timezone,
-        isp: geoInfo.org,
-        timestamp: geoInfo.timestamp,
-      },
-    };
 
-    const res = await fetch("http://localhost:5000/api/reports", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || "Failed to submit report");
-    }
-
-    return res.json();
+const submitReport = async ({ ipAddress, geoInfo }) => {
+  const payload = {
+    ipAddress,
+    source: "gps",
+    location: {
+      latitude: geoInfo.latitude,
+      longitude: geoInfo.longitude,
+      accuracy: geoInfo.accuracy,
+      timestamp: geoInfo.timestamp,
+    },
   };
+
+  const res = await fetch("http://localhost:5000/api/reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await res.text(); // read raw body for debugging
+
+  if (!res.ok) {
+    console.error("Submit failed:", res.status, text);
+    throw new Error(`Submit failed (${res.status}): ${text}`);
+  }
+
+  // If server returns JSON, parse it
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+};
+
 
   const getGpsLocation = () => {
     setError("");
@@ -89,7 +93,7 @@ export default function App() {
   return (
     <div className="App">
       <button onClick={getGpsLocation} disabled={loading}>
-        {loading ? "Getting GPS..." : "Report pothole (1 tap)"}
+        {TrafficCone()}
       </button>
 
       {error && <p>{error}</p>}

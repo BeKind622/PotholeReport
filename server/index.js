@@ -12,44 +12,45 @@ app.use(express.json());
 // 1) Schema / Model
 const reportSchema = new mongoose.Schema(
   {
-    ipAddress: { type: String, required: true },
+    ipAddress: { type: String },
+    source: { type: String, default: "gps" },
     location: {
       latitude: { type: Number, required: true },
       longitude: { type: Number, required: true },
-      accuracy: { type: Number }, // metres
-      city: String,
-      region: String,
-      country: String,
-      timezone: String,
-      isp: String,
+      accuracy: { type: Number },
+      timestamp: { type: String },
     },
-    source: { type: String, default: "ip" }, // "ip" or "gps" later
-    confirmed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
 const Report = mongoose.model("Report", reportSchema);
 
-// 2) Routes
-app.get("/api/health", (req, res) => res.json({ ok: true }));
 
+// 2) Routes
 app.post("/api/reports", async (req, res) => {
   try {
-    const { ipAddress, location, source } = req.body;
+    const ipAddress = req.ip;
+    const { location, source } = req.body;
 
-    if (!ipAddress) return res.status(400).json({ error: "ipAddress is required" });
     if (!location?.latitude || !location?.longitude) {
-      return res.status(400).json({ error: "location.latitude and location.longitude are required" });
+      return res.status(400).json({ error: "Latitude and longitude required" });
     }
 
-    const saved = await Report.create({ ipAddress, location, source });
+    const saved = await Report.create({
+      ipAddress,
+      location,
+      source: source || "gps",
+    });
+
+    // 🔥 THIS LINE IS CRITICAL
     res.status(201).json(saved);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error saving report" });
+    res.status(500).json({ error: "Failed to save report" });
   }
 });
+
 
 // 3) Connect + start
 const PORT = process.env.PORT || 5000;

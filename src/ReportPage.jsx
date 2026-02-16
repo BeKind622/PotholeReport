@@ -1,5 +1,6 @@
 import React from 'react';
 import {useState, useEffect} from 'react';
+import TrafficCone from "./assets/TrafficCone";
 
 const ReportPage = () => {
      const [pos, setPos] = useState(null);
@@ -76,6 +77,7 @@ const submitReport = async ({ ipAddress, geoInfo }) => {
         } finally {
           setLoading(false);
         }
+        console.log("GPS location obtained:", position);
       },
       (err) => {
         setLoading(false);
@@ -83,6 +85,7 @@ const submitReport = async ({ ipAddress, geoInfo }) => {
         else if (err.code === err.POSITION_UNAVAILABLE) setError("Location unavailable.");
         else if (err.code === err.TIMEOUT) setError("Location request timed out.");
         else setError("Could not get location.");
+        console.error("Error getting GPS location:", err);
       },
       {
         enableHighAccuracy: true,

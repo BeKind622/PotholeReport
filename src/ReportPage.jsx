@@ -62,9 +62,16 @@ const submitReport = async ({ ipAddress, geoInfo }) => {
             longitude,
             accuracy,
             timestamp: new Date(position.timestamp).toISOString(),
-          };
 
+          };
+ //  REVERSE GEOCODE
+          const res = await fetch(
+  `http://localhost:5000/api/reverse-geocode?lat=${latitude}&lng=${longitude}`
+);
+const geo = await res.json();
+console.log(geo.displayName);
           setPos(geoData);
+         
 
           // 🔥 SEND TO MONGODB
           await submitReport({

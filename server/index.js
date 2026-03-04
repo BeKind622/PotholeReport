@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); // allow frontend origin
+app.use(cors({ origin: /^http:\/\/localhost:\d+$/, credentials: true })); // replace localhost with specific ID for security ("http://localhost:5173")
 app.use(cookieParser());
 
 

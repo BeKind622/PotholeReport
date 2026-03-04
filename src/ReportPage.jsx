@@ -1,6 +1,5 @@
-import React from 'react';
 import {useState, useEffect} from 'react';
-import TrafficCone from "./assets/TrafficCone";
+import TrafficCone from "../public/icons/TrafficCone";
 
 const ReportPage = () => {
      const [pos, setPos] = useState(null);
@@ -10,7 +9,6 @@ const ReportPage = () => {
 
 const submitReport = async ({ ipAddress, geoInfo }) => {
   const payload = {
-    ipAddress,
     source: "gps",
     location: {
       latitude: geoInfo.latitude,
@@ -73,7 +71,7 @@ console.log(geo.displayName);
           setPos(geoData);
          
 
-          // 🔥 SEND TO MONGODB
+          // SEND TO MONGODB
           await submitReport({
             ipAddress: "auto", // later: derive on server using req.ip
             geoInfo: geoData,

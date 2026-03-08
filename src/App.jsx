@@ -1,23 +1,23 @@
-// import { useState } from "react";
-// import TrafficCone from "./assets/TrafficCone";
-import ReportPage from "./ReportPage";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Home from "./pages/Home";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import RequireAdmin from "./auth/RequireAdmin";
+
 export default function App() {
- 
   return (
- 
- <>
- <div className="screen" style={{
-    minHeight: "100vh",
-    maxWidth: "480px",
-    margin: "0 auto",
-    padding: "16px",
-    boxSizing: "border-box",
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    overflowX: "hidden"}}>
-  <ReportPage />
-  </div>
-  </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route
+        path="/admin"
+        element={
+          <RequireAdmin>
+            <AdminDashboard />
+          </RequireAdmin>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

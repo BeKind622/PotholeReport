@@ -10,7 +10,9 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: /^http:\/\/localhost:\d+$/, credentials: true })); // replace localhost with specific ID for security ("http://localhost:5173")
+app.use(cors({ origin:["http://localhost:5173",
+    "http://localhost:4173",
+    "https://oppressive-statistically-randi.ngrok-free.dev"], credentials: true })); // replace localhost with specific IP for security ("http://localhost:5173")
 app.use(cookieParser());
 
 
@@ -37,6 +39,7 @@ app.post("/api/admin/login", (req, res) => {
 
   const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, { expiresIn: "2h" });
 
+  
   res.cookie("admin_token", token, {
     httpOnly: true,
     sameSite: "lax",
@@ -64,11 +67,6 @@ app.get("/api/admin/me", (req, res) => {
   } catch {
     res.status(401).json({ ok: false });
   }
-});
-// admin only endpoint to view reports
-app.get("/api/admin/reports", requireAdmin, async (req, res) => {
-  const reports = await Report.find().sort({ createdAt: -1 }).limit(200);
-  res.json(reports);
 });
 
 
@@ -109,6 +107,26 @@ const reportSchema = new mongoose.Schema(
 );
 
 const Report = mongoose.model("Report", reportSchema);
+
+// admin only endpoint to view reports
+app.get("/api/admin/reports", requireAdmin, async (req, res) => {
+  const reports = await Report.find().sort({ createdAt: -1 }).limit(200);
+  res.json(reports);
+});
+
+
+app.delete("/api/admin/reports/:id", requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Report.findByIdAndDelete(id);
+
+    if (!deleted) return res.status(404).json({ error: "Not found" });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Delete failed" });
+  }
+});
 
 // helper nominatim function
 async function reverseGeocodeNominatim(lat, lon) {
@@ -199,23 +217,6 @@ app.post("/api/reports", async (req, res) => {
   }
 });
 
-
-// 3) Connect + start
-const PORT = process.env.PORT || 5000;
-
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("MongoDB connected");
-    app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-    process.exit(1);
-  });
-
-  // Nominatim geocaching api
-
   app.get("/api/reverse-geocode", async (req, res) => {
   try {
     const { lat, lng } = req.query;
@@ -245,3 +246,24 @@ mongoose
     res.status(500).json({ error: "Server error" });
   }
 });
+
+
+// 3) Connect + start
+const PORT = process.env.PORT || 5000;
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+    app.listen(PORT, "0.0.0.0", () =>
+      console.log(`API running on http://localhost:${PORT}`)
+    );
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  });
+
+  // Nominatim geocaching api
+
+

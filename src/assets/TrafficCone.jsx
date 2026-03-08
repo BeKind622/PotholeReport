@@ -1,5 +1,5 @@
 
-const TrafficCone = () => {
+export default function TrafficCone () {
   return (
 
   <>
@@ -101,4 +101,3 @@ const TrafficCone = () => {
     </>
   );
 }
-export default TrafficCone;

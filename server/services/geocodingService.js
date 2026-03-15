@@ -9,7 +9,7 @@ export async function reverseGeocodeNominatim(lat, lon) {
     headers: {
       "User-Agent":
         process.env.NOMINATIM_USER_AGENT ||
-        "PotholeReporter/1.0 (contact: you@example.com)",
+        "PotholeReporter/1.0 (contact: raul.ga24@gmail.com",
       "Accept-Language": "en",
     },
   });

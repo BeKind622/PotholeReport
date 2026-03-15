@@ -3,13 +3,6 @@ import mongoose from "mongoose";
 const reportSchema = new mongoose.Schema(
   {
     ipAddress: { type: String },
-    photo: {
-  filename: String,
-  originalName: String,
-  mimeType: String,
-  size: Number,
-  path: String,
-},
     source: { type: String, default: "gps" },
     location: {
       latitude: { type: Number, required: true },
@@ -37,6 +30,12 @@ const reportSchema = new mongoose.Schema(
       lat: String,
       lon: String,
     },
+    photo: {
+  data: String,
+  mimeType: String,
+  originalName: String,
+  size: Number,
+},
   },
   { timestamps: true }
 );

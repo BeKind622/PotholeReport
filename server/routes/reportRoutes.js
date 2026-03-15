@@ -1,40 +1,52 @@
 import express from "express";
 import Report from "../models/Report.js";
 import { reverseGeocodeNominatim } from "../services/geocodingService.js";
+import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single("photo"), async (req, res) => {
   try {
     const ipAddress = req.ip;
-    const { location, source } = req.body;
 
-    if (!location?.latitude || !location?.longitude) {
+    const latitude = Number(req.body.latitude);
+    const longitude = Number(req.body.longitude);
+    const accuracy = Number(req.body.accuracy);
+    const timestamp = req.body.timestamp;
+    const source = req.body.source || "gps";
+
+    if (!latitude || !longitude) {
       return res
         .status(400)
-        .json({ error: "location.latitude and location.longitude are required" });
+        .json({ error: "latitude and longitude are required" });
     }
 
     let nominatimData = null;
     try {
-      nominatimData = await reverseGeocodeNominatim(
-        location.latitude,
-        location.longitude
-      );
+      nominatimData = await reverseGeocodeNominatim(latitude, longitude);
     } catch (e) {
       console.warn("Reverse geocode failed:", e.message);
     }
 
     const addr = nominatimData?.address || {};
 
+    const photoData = req.file
+      ? {
+          data: req.file.buffer.toString("base64"),
+          mimeType: req.file.mimetype,
+          originalName: req.file.originalname,
+          size: req.file.size,
+        }
+      : undefined;
+
     const doc = {
       ipAddress,
-      source: source || "gps",
+      source,
       location: {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        accuracy: location.accuracy,
-        timestamp: location.timestamp,
+        latitude,
+        longitude,
+        accuracy,
+        timestamp,
       },
       address: nominatimData
         ? {
@@ -51,6 +63,7 @@ router.post("/", async (req, res) => {
             countryCode: addr.country_code,
           }
         : undefined,
+      photo: photoData,
       nominatim: nominatimData
         ? {
             placeId: nominatimData.place_id,
@@ -73,6 +86,7 @@ router.post("/", async (req, res) => {
 router.get("/reverse-geocode", async (req, res) => {
   try {
     const { lat, lng } = req.query;
+
     if (!lat || !lng) {
       return res.status(400).json({ error: "lat and lng required" });
     }

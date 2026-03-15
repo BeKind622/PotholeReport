@@ -116,6 +116,7 @@ export default function AdminDashboard() {
                           Coords: {coords}{" "}
                           {r.location?.accuracy != null ? `(±${Math.round(r.location.accuracy)}m)` : ""}
                         </p>
+                        
                       </div>
 
                       <span className="mt-1 inline-flex items-center rounded-full border border-slate-700 px-2 py-1 text-xs text-slate-300">
@@ -130,6 +131,13 @@ export default function AdminDashboard() {
                         <div><span className="text-slate-400">Address:</span> {r.address?.displayName || "—"}</div>
                         <div><span className="text-slate-400">Postcode:</span> {r.address?.postcode || "—"}</div>
                         <div><span className="text-slate-400">Country:</span> {r.address?.country || "—"}</div>
+                        {r.photo?.data && (
+  <img
+    src={`data:${r.photo.mimeType};base64,${r.photo.data}`}
+    alt="Pothole report"
+    className="mt-4 w-full max-w-sm rounded-xl border border-slate-700"
+  />
+)}
                       </div>
 
                       <div className="mt-4 flex gap-2">

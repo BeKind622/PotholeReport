@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 const ReportPage = () => {
   const [pos, setPos] = useState(null);
@@ -175,14 +175,14 @@ const ReportPage = () => {
         accept="image/*"
         capture="environment"
         onChange={(e) => setPhoto(e.target.files[0] || null)}
-        className="mt-4 block w-full text-sm text-slate-200"
+        className="mt-4 block w-full text-sm text-slate-200 "
       />
 
       {photoPreview && (
         <img
           src={photoPreview}
           alt="Selected pothole"
-          className="mt-4 w-full max-w-xs rounded-xl border border-slate-700"
+          className="mt-4 w-40 inline-block border-slate-700"
         />
       )}
 

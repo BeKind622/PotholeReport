@@ -19,6 +19,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:4173",
       "https://oppressive-statistically-randi.ngrok-free.dev",
+      "https://potholereport.onrender.com",
     ],
     credentials: true,
   })

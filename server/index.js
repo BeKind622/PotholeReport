@@ -20,6 +20,7 @@ app.use(
       "http://localhost:4173",
       "https://oppressive-statistically-randi.ngrok-free.dev",
       "https://potholereport.onrender.com",
+      "https://taupe-kleicha-d31025.netlify.app",
     ],
     credentials: true,
   })

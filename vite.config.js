@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   server: {
     host: true,
-    allowedHosts: ["oppressive-statistically-randi.ngrok-free.dev"],
+    allowedHosts: ["oppressive-statistically-randi.ngrok-free.dev", "potholereport.onrender.com", "taupe-kleicha-d31025.netlify.app"],
     proxy: {
       "/api": {
         target: "http://localhost:5000",

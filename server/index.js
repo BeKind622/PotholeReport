@@ -21,6 +21,7 @@ app.use(
       "https://oppressive-statistically-randi.ngrok-free.dev",
       "https://potholereport.onrender.com",
       "https://taupe-kleicha-d31025.netlify.app",
+      "https://potholereportapp.netlify.app",
     ],
     credentials: true,
   })

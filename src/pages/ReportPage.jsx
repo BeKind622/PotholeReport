@@ -53,7 +53,7 @@ const ReportPage = () => {
           setPos(geoData);
 
           const res = await fetch(
-  `${API_BASE}/api/reports/reverse-geocode?lat=${latitude}&lng=${longitude}`
+  `${API_BASE}/api/reports/reverse-geocode?lat=${latitude}&lon=${longitude}`
 );
 
           if (!res.ok) {

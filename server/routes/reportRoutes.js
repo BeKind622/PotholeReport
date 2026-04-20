@@ -23,10 +23,10 @@ router.post("/", upload.single("photo"), async (req, res) => {
 
     let nominatimData = null;
     try {
-      nominatimData = await reverseGeocodeNominatim(latitude, longitude);
-    } catch (e) {
-      console.warn("Reverse geocode failed:", e.message);
-    }
+  nominatimData = await reverseGeocodeNominatim(latitude, longitude);
+} catch (error) {
+  console.warn("Nominatim failed:", error.message);
+}
 
     const addr = nominatimData?.address || {};
 
@@ -83,15 +83,24 @@ router.post("/", upload.single("photo"), async (req, res) => {
   }
 });
 
+
+// NEW ROUTE FOR REVERSE GEOCODING
 router.get("/reverse-geocode", async (req, res) => {
   try {
-    const { lat, lng } = req.query;
+    const { lat, lon } = req.query;
 
-    if (!lat || !lng) {
-      return res.status(400).json({ error: "lat and lng required" });
+    if (!lat || !lon) {
+      return res.status(400).json({ error: "lat and lon required" });
     }
 
-    const data = await reverseGeocodeNominatim(lat, lng);
+    const data = await reverseGeocodeNominatim(lat, lon);
+
+    if (!data) {
+      return res.status(200).json({
+        displayName: "Address unavailable",
+        address: {}
+      });
+    }
 
     res.json({
       displayName: data.display_name,
@@ -102,5 +111,25 @@ router.get("/reverse-geocode", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+// OLD ROUTE FOR REVERSE GEOCODING
+// router.get("/reverse-geocode", async (req, res) => {
+//   try {
+//     const { lat, lng } = req.query;
+
+//     if (!lat || !lng) {
+//       return res.status(400).json({ error: "lat and lng required" });
+//     }
+
+//     const data = await reverseGeocodeNominatim(lat, lng);
+
+//     res.json({
+//       displayName: data.display_name,
+//       address: data.address,
+//     });
+//   } catch (e) {
+//     console.error(e);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
 
 export default router;

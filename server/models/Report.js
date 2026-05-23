@@ -31,11 +31,18 @@ const reportSchema = new mongoose.Schema(
       lon: String,
     },
     photo: {
-  data: String,
-  mimeType: String,
-  originalName: String,
-  size: Number,
-},
+      data: String,
+      mimeType: String,
+      originalName: String,
+      size: Number,
+    },
+    aiAnalysis: {
+      isRoadDefect: Boolean,
+      defectType: String,
+      severity: Number,
+      description: String,
+      analyzedAt: Date,
+    },
   },
   { timestamps: true }
 );

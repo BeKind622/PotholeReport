@@ -19,7 +19,7 @@ router.post("/login", (req, res) => {
   res.cookie("admin_token", token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     maxAge: 2 * 60 * 60 * 1000,
   });
 

@@ -1,9 +1,23 @@
 import express from "express";
 import Report from "../models/Report.js";
 import { reverseGeocodeNominatim } from "../services/geocodingService.js";
+import { analyzeRoadPhoto } from "../services/aiAnalysis.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
+
+router.post("/analyze-photo", upload.single("photo"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No photo provided" });
+
+  try {
+    const base64 = req.file.buffer.toString("base64");
+    const analysis = await analyzeRoadPhoto(base64, req.file.mimetype);
+    res.json(analysis);
+  } catch (err) {
+    console.error("AI analysis error:", err);
+    res.status(500).json({ error: "AI analysis failed" });
+  }
+});
 
 router.post("/", upload.single("photo"), async (req, res) => {
   try {
@@ -15,7 +29,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
     const timestamp = req.body.timestamp;
     const source = req.body.source || "gps";
 
-    if (!latitude || !longitude) {
+    if (isNaN(latitude) || isNaN(longitude)) {
       return res
         .status(400)
         .json({ error: "latitude and longitude are required" });
@@ -23,10 +37,10 @@ router.post("/", upload.single("photo"), async (req, res) => {
 
     let nominatimData = null;
     try {
-  nominatimData = await reverseGeocodeNominatim(latitude, longitude);
-} catch (error) {
-  console.warn("Nominatim failed:", error.message);
-}
+      nominatimData = await reverseGeocodeNominatim(latitude, longitude);
+    } catch (error) {
+      console.warn("Nominatim failed:", error.message);
+    }
 
     const addr = nominatimData?.address || {};
 
@@ -38,6 +52,16 @@ router.post("/", upload.single("photo"), async (req, res) => {
           size: req.file.size,
         }
       : undefined;
+
+    let aiAnalysis;
+    if (req.body.aiAnalysis) {
+      try {
+        const parsed = JSON.parse(req.body.aiAnalysis);
+        aiAnalysis = { ...parsed, analyzedAt: new Date() };
+      } catch {
+        // ignore malformed analysis
+      }
+    }
 
     const doc = {
       ipAddress,
@@ -73,6 +97,7 @@ router.post("/", upload.single("photo"), async (req, res) => {
             lon: nominatimData.lon,
           }
         : undefined,
+      aiAnalysis,
     };
 
     const saved = await Report.create(doc);
@@ -83,8 +108,6 @@ router.post("/", upload.single("photo"), async (req, res) => {
   }
 });
 
-
-// NEW ROUTE FOR REVERSE GEOCODING
 router.get("/reverse-geocode", async (req, res) => {
   try {
     const { lat, lon } = req.query;
@@ -111,25 +134,5 @@ router.get("/reverse-geocode", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-// OLD ROUTE FOR REVERSE GEOCODING
-// router.get("/reverse-geocode", async (req, res) => {
-//   try {
-//     const { lat, lng } = req.query;
-
-//     if (!lat || !lng) {
-//       return res.status(400).json({ error: "lat and lng required" });
-//     }
-
-//     const data = await reverseGeocodeNominatim(lat, lng);
-
-//     res.json({
-//       displayName: data.display_name,
-//       address: data.address,
-//     });
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
 
 export default router;

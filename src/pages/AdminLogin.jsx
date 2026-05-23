@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -11,7 +13,7 @@ export default function AdminLogin() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/admin/login", {
+      const res = await fetch(`${API_BASE}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -45,6 +47,7 @@ export default function AdminLogin() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && login()}
           />
 
           {error && <p className="mt-3 text-sm text-red-400">{error}</p>}

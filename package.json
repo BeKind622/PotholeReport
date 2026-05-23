@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.54.0",
     "@tailwindcss/vite": "^4.2.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

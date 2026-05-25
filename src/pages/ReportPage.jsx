@@ -58,12 +58,13 @@ const ReportPage = () => {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Analysis request failed");
-
       const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Analysis request failed");
+
       setAnalysis(result);
     } catch (err) {
-      setAnalysisError("AI analysis unavailable");
+      console.error("Photo analysis error:", err);
+      setAnalysisError(`AI analysis unavailable: ${err.message}`);
     } finally {
       setAnalyzing(false);
     }

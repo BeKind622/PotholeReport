@@ -15,7 +15,7 @@ router.post("/analyze-photo", upload.single("photo"), async (req, res) => {
     res.json(analysis);
   } catch (err) {
     console.error("AI analysis error:", err);
-    res.status(500).json({ error: "AI analysis failed" });
+    res.status(500).json({ error: err.message || "AI analysis failed" });
   }
 });
 

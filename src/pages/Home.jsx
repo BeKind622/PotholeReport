@@ -96,12 +96,20 @@ export default function Home() {
 
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold">Pothole Report</h1>
-          <Link
-            to="/admin/login"
-            className="rounded-xl border border-slate-700 bg-slate-900/40 px-3 py-2 text-sm hover:bg-slate-900"
-          >
-            Admin
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to="/report"
+              className="rounded-xl border border-slate-700 bg-slate-900/40 px-3 py-2 text-sm hover:bg-slate-900"
+            >
+              Full Report
+            </Link>
+            <Link
+              to="/admin/login"
+              className="rounded-xl border border-slate-700 bg-slate-900/40 px-3 py-2 text-sm hover:bg-slate-900"
+            >
+              Admin
+            </Link>
+          </div>
         </div>
 
         <div className="mt-16 flex flex-col items-center gap-6">

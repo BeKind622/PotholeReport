@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -14,6 +15,7 @@ const DEFECT_LABELS = {
 };
 
 const ReportPage = () => {
+  const nav = useNavigate();
   const [pos, setPos] = useState(null);
   const [address, setAddress] = useState(null);
   const [photo, setPhoto] = useState(null);
@@ -190,6 +192,17 @@ const ReportPage = () => {
   };
 
   return (
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="mx-auto max-w-md px-4 py-6">
+      <button
+        onClick={() => nav("/")}
+        className="mb-4 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+          <path fillRule="evenodd" d="M9.72 4.72a.75.75 0 0 1 0 1.06L5.81 10H21a.75.75 0 0 1 0 1.5H5.8l3.9 3.94a.75.75 0 1 1-1.08 1.04l-5.25-5.3a.75.75 0 0 1 0-1.04l5.25-5.3a.75.75 0 0 1 1.06 0z" clipRule="evenodd" />
+        </svg>
+        Back
+      </button>
     <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-4">
       <button
         onClick={getGpsLocation}
@@ -280,6 +293,8 @@ const ReportPage = () => {
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
       {success && <p className="mt-4 text-sm text-green-400">{success}</p>}
+    </div>
+    </div>
     </div>
   );
 };

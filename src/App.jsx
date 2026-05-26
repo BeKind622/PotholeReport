@@ -2,12 +2,14 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import ReportPage from "./pages/ReportPage";
 import RequireAdmin from "./auth/RequireAdmin";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/report" element={<ReportPage />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route
         path="/admin"
